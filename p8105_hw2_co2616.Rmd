@@ -1,10 +1,10 @@
 ---
 title: "p8105_hw2_co2616"
 output: github_document
-date: "2025-10-04"
+date: "2025-10-01"
 ---
 
-# Problem 1
+## Problem 1
 
 loading the tidyverse and lubridate libraries to complete problem 1
 
@@ -112,3 +112,7 @@ first_df =
 ```
 
 The `pols` dataset contained 822 observations of 9 variables related to the number of national politicians who are democratic or republican at any given time. The `snp` dataset contained 787 observations of 2 variables related to Standard & Poor’s stock market index (S&P). The The `unemployment` dataset contained 68 observations of 13 variables related to percentage of unemployment. After merging all three datasets together the result dataset, `first_df`, contained 1,345 observations and 12 variables. The key variables were "year" and "month" and years ranged from 1969 to 2068.
+
+
+## Problem 2
+
