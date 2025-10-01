@@ -6,15 +6,109 @@ date: "2025-10-04"
 
 # Problem 1
 
-loading the tidyverse libraries to complete problem 1
+loading the tidyverse and lubridate libraries to complete problem 1
+
 ```{r}
 library(tidyverse)
+library(lubridate)
 ```
+
+tidying `pols` dataset
 
 ```{r}
 pols_df = 
-  read_csv("p8105_hw2_co2616/hw2_data/pols-month.csv")
+  read_csv("hw2_data/pols-month.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(
+    mon, into = c("year", "month", "day")) %>% 
+  mutate(
+    month = case_match(
+    month,
+    "01" ~ "january",
+    "02" ~ "february",
+    "03" ~ "march",
+    "04" ~ "april",
+    "05" ~ "may",
+    "06" ~ "june",
+    "07" ~ "july",
+    "08" ~ "august",
+    "09" ~ "september",
+    "10" ~ "october",
+    "11" ~ "november",
+    "12" ~ "december"
+  )) %>% 
+  pivot_longer(
+    cols = c(prez_gop, prez_dem),
+    names_to = "president",
+    values_to = "party",
+    names_prefix = "prez_"
+  ) %>% 
+  select(-day)
 ```
 
+tidying `snp` dataset
 
-  
+```{r}
+snp_df = 
+  read_csv("hw2_data/snp.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(date = mdy(date)) %>% 
+  separate(
+    date, into = c("year", "month", "day")) %>%
+  mutate(
+    month = case_match(
+    month,
+    "01" ~ "january",
+    "02" ~ "february",
+    "03" ~ "march",
+    "04" ~ "april",
+    "05" ~ "may",
+    "06" ~ "june",
+    "07" ~ "july",
+    "08" ~ "august",
+    "09" ~ "september",
+    "10" ~ "october",
+    "11" ~ "november",
+    "12" ~ "december")) %>% 
+  relocate("year", "month") %>% 
+  select(-day)
+```
+
+tidying `unemployment` dataset
+
+```{r}
+unemploy_df = 
+  read_csv("hw2_data/unemployment.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    cols = jan:dec,
+    names_to = "month",
+    values_to = "percentage",
+  ) %>% 
+ mutate(
+    month = case_match(
+    month,
+    "jan" ~ "january",
+    "feb" ~ "february",
+    "mar" ~ "march",
+    "apr" ~ "april",
+    "may" ~ "may",
+    "jun" ~ "june",
+    "jul" ~ "july",
+    "aug" ~ "august",
+    "sep" ~ "september",
+    "oct" ~ "october",
+    "nov" ~ "november",
+    "dec" ~ "december")) %>% 
+  mutate(year = as.character(year))
+```
+
+joining the datasets
+
+```{r}
+first_df = 
+  left_join(snp_df, pols_df, by = c("year", "month")) %>% 
+  left_join(unemploy_df, by = c("year", "month"))
+```
+
+The `pols` dataset contained 822 observations of 9 variables related to the number of national politicians who are democratic or republican at any given time. The `snp` dataset contained 787 observations of 2 variables related to Standard & Poor’s stock market index (S&P). The The `unemployment` dataset contained 68 observations of 13 variables related to percentage of unemployment. After merging all three datasets together the result dataset, `first_df`, contained 1,345 observations and 12 variables. The key variables were "year" and "month" and years ranged from 1969 to 2068.
