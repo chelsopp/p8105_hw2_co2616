@@ -4,3 +4,17 @@ output: github_document
 date: "2025-10-04"
 ---
 
+# Problem 1
+
+loading the tidyverse libraries to complete problem 1
+```{r}
+library(tidyverse)
+```
+
+```{r}
+pols_df = 
+  read_csv("p8105_hw2_co2616/hw2_data/pols-month.csv")
+```
+
+
+  
