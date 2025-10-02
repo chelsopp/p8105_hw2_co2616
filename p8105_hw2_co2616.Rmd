@@ -178,8 +178,8 @@ zip_df =
   mutate(file_date = mdy(file_date)) %>% 
   separate(
     file_date, into = c("year", "month", "day")) %>%
-  relocate(county, zip_code, neighborhood) %>% 
-  select(-state_fips, -county_fips, -county_code)
+  relocate(county, zip_code, year, month, neighborhood) %>% 
+  select(-state_fips, -county_fips, -county_code, -day)
 ```
 
 tidying `zori` dataset
@@ -208,6 +208,15 @@ zori_df =
     "Richmond County" ~ "Richmond",
     "New York County" ~ "New York",
     )) %>% 
-  relocate(county, zip_code, state, rental_price) %>% 
-  select(-metro, -state_name, -region_type, -size_rank, -city, -region_id)
+  relocate(county, zip_code, year, month, state, rental_price) %>% 
+  select(-metro, -state_name, -region_type, -size_rank, -city, -region_id, -day)
 ```
+
+joining/merging datasets together
+
+```{r}
+zillow_df = 
+  left_join(zori_df, zip_df, by = c("county", "zip_code", "year", "month"))
+```
+
+The `zillow_df` dataset contains 17284 observations of 7 variables.
