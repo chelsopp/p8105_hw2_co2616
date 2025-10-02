@@ -164,7 +164,50 @@ trash_df =
   janitor::clean_names()
 ```
 
-The `mr_trash_df` dataset contained 651 observations of 15 variables, the `prof_trash_df` dataset contained 119 observations of 14 variables, and the `gwy_trash_df` dataset contained 263 observations of 13 varaibles. After combining all three datasets together the resulting dataset, `trash_df`, contained 1,033 observations and 15 variables. Example of key variables were `dumpster`, `month`, `year`, and `plastic_bottles`. The total weight of trash collected by Professor Trash Wheel is `r sum(pull(prof_trash_df, weight_tons), na.rm = TRUE)`. The total number of cigarette butts collected by Gwynnda in June of 2022 is `r sum(pull(gwy_trash_df_filter, cigarette_butts))`
+The `mr_trash_df` dataset contained 651 observations of 15 variables, the `prof_trash_df` dataset contained 119 observations of 14 variables, and the `gwy_trash_df` dataset contained 263 observations of 13 varaibles. After combining all three datasets together the resulting dataset, `trash_df`, contained 1,033 observations and 15 variables. Example of key variables were `dumpster`, `month`, `year`, and `plastic_bottles`. The total weight of trash collected by Professor Trash Wheel is `r sum(pull(prof_trash_df, weight_tons), na.rm = TRUE)`. The total number of cigarette butts collected by Gwynnda in June of 2022 is `r sum(pull(gwy_trash_df_filter, cigarette_butts))`.
 
 
+## Problem 3
 
+tidying `Zip Codes` dataset
+
+```{r}
+zip_df = 
+  read_csv("hw2_data/Zip Codes.csv") %>% 
+  janitor::clean_names() %>%
+  mutate(file_date = mdy(file_date)) %>% 
+  separate(
+    file_date, into = c("year", "month", "day")) %>%
+  relocate(county, zip_code, neighborhood) %>% 
+  select(-state_fips, -county_fips, -county_code)
+```
+
+tidying `zori` dataset
+
+```{r}
+zori_df = 
+  read_csv("hw2_data/zori.csv") %>% 
+  janitor::clean_names()  %>%
+  pivot_longer(
+    cols = x2015_01_31:x2024_08_31,
+    names_to = "date",
+    values_to = "rental_price",
+    names_prefix = "x") %>% 
+  separate(
+    date, into = c("year", "month", "day")) %>% 
+  rename(
+   county = county_name,
+   zip_code = region_name
+  ) %>% 
+  mutate(
+    county = case_match(
+    county,
+    "Bronx County" ~ "Bronx",
+    "Kings County" ~ "Kings",
+    "Queens County" ~ "Queens",
+    "Richmond County" ~ "Richmond",
+    "New York County" ~ "New York",
+    )) %>% 
+  relocate(county, zip_code, state, rental_price) %>% 
+  select(-metro, -state_name, -region_type, -size_rank, -city, -region_id)
+```
