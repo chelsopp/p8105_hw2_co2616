@@ -4,14 +4,16 @@ output: github_document
 date: "2025-10-01"
 ---
 
-## Problem 1
 
-loading the tidyverse and lubridate libraries to complete problem 1
+loading the libraries to complete HW2
 
 ```{r}
 library(tidyverse)
+library(readxl)
 library(lubridate)
 ```
+
+## Problem 1
 
 tidying `pols` dataset
 
@@ -78,7 +80,10 @@ tidying `unemployment` dataset
 
 ```{r}
 unemploy_df = 
-  read_csv("hw2_data/unemployment.csv") %>% 
+  read_csv("hw2_data/unemployment.csv",
+  col_types = cols(
+    Year = col_character()
+  )) %>% 
   janitor::clean_names() %>% 
   pivot_longer(
     cols = jan:dec,
@@ -99,11 +104,10 @@ unemploy_df =
     "sep" ~ "september",
     "oct" ~ "october",
     "nov" ~ "november",
-    "dec" ~ "december")) %>% 
-  mutate(year = as.character(year))
+    "dec" ~ "december")) 
 ```
 
-joining the datasets
+joining/merging the datasets
 
 ```{r}
 first_df = 
@@ -111,8 +115,56 @@ first_df =
   left_join(unemploy_df, by = c("year", "month"))
 ```
 
-The `pols` dataset contained 822 observations of 9 variables related to the number of national politicians who are democratic or republican at any given time. The `snp` dataset contained 787 observations of 2 variables related to Standard & Poor’s stock market index (S&P). The The `unemployment` dataset contained 68 observations of 13 variables related to percentage of unemployment. After merging all three datasets together the result dataset, `first_df`, contained 1,345 observations and 12 variables. The key variables were "year" and "month" and years ranged from 1969 to 2068.
+The `pols` dataset contained 822 observations of 9 variables related to the number of national politicians who are democratic or republican at any given time. The `snp` dataset contained 787 observations of 2 variables related to Standard & Poor’s stock market index (S&P). The The `unemployment` dataset contained 68 observations of 13 variables related to percentage of unemployment. After merging all three datasets together the resulting dataset, `first_df`, contained 1,345 observations and 12 variables. The key variables were `year` and `month` and years ranged from 1969 to 2068.
 
 
 ## Problem 2
+
+tidying Mr.Trash Wheel dataset
+
+```{r}
+mr_trash_df =
+  read_excel("hw2_data/202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N653") %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(sports_balls = as.integer(sports_balls)) %>% 
+  mutate(year = as.integer(year)) %>% 
+  mutate(trash = "mr_wheel")
+```
+
+tidying Professor Trash Wheel dataset
+
+```{r}
+prof_trash_df =
+  read_excel("hw2_data/202409 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1) %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(trash = "professor")
+```
+
+tidying Gwynnda dataset
+
+```{r}
+gwy_trash_df =
+  read_excel("hw2_data/202409 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", skip = 1) %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(trash = "gwynnda")
+
+gwy_trash_df_filter =
+  gwy_trash_df %>% 
+  filter(month == "June", year == "2022")
+```
+
+combining all three datasets
+
+```{r}
+trash_df = 
+  bind_rows(mr_trash_df, prof_trash_df, gwy_trash_df) %>% 
+  janitor::clean_names()
+```
+
+The `mr_trash_df` dataset contained 651 observations of 15 variables, the `prof_trash_df` dataset contained 119 observations of 14 variables, and the `gwy_trash_df` dataset contained 263 observations of 13 varaibles. After combining all three datasets together the resulting dataset, `trash_df`, contained 1,033 observations and 15 variables. Example of key variables were `dumpster`, `month`, `year`, and `plastic_bottles`. The total weight of trash collected by Professor Trash Wheel is `r sum(pull(prof_trash_df, weight_tons), na.rm = TRUE)`. The total number of cigarette butts collected by Gwynnda in June of 2022 is `r sum(pull(gwy_trash_df_filter, cigarette_butts))`
+
+
 
